@@ -1,14 +1,15 @@
 "use client"
 import React, { createContext, useContext } from "react"
 import { useSession, SessionProvider } from "next-auth/react"
-import type { Session } from "next-auth"
+import type { Session, User } from "next-auth"
 
-interface AuthContextType extends Session {
+export interface AuthContextType {
+  user: (User & { role: string }) | null
   isAuthenticated: boolean
   loading: boolean
 }
 
-const AuthContext = createContext<AuthContextType | null>(null)
+const AuthContext = createContext<AuthContextType>({} as AuthContextType)
 
 const AuthProviderContent: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -27,7 +28,11 @@ const AuthProviderContent: React.FC<{ children: React.ReactNode }> = ({
     <AuthContext.Provider
       // Passamos a sessão (que pode ser null), o status de autenticado e o carregamento.
       // O `user` e a `role` já estão dentro do objeto `session`.
-      value={{ ...(session as Session), isAuthenticated, loading }}
+      value={{
+        user: (session?.user as User & { role: string }) ?? null,
+        isAuthenticated,
+        loading,
+      }}
     >
       {children}
     </AuthContext.Provider>
@@ -48,7 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
 export const useAuth = () => {
   const context = useContext(AuthContext)
-  if (context === undefined) {
+  if (context === undefined || Object.keys(context).length === 0) {
     throw new Error("useAuth must be used within an AuthProvider")
   }
   return context

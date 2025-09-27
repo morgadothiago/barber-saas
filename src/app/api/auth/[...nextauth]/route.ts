@@ -22,7 +22,7 @@ export const authOptions: NextAuthOptions = {
             role: "admin",
           },
           {
-            id: "2",
+            id: "",
             name: "teste",
             email: "teste@example.com",
             password: "123456", // ⚠️ Só para testes! Nunca armazene senha assim em produção
